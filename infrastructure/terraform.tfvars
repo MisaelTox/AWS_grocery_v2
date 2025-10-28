@@ -1,6 +1,0 @@
-region        = "eu-north-1"
-project_name  = "grocerymate-v2"
-environment   = "dev"
-instance_type = "t3.micro"
-db_password   = "proyectofinal1234abcd"
-db_username   = "admin"

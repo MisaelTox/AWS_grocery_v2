@@ -1,6 +1,6 @@
 variable "region" {
-  description = "AWS region to deploy resources"
-  default     = "eu-north-1"
+  type        = string
+  description = "AWS region to deploy resources in"
 }
 
 variable "project_name" {
@@ -9,7 +9,8 @@ variable "project_name" {
 }
 
 variable "environment" {
-  description = "Environment type"
+  type        = string
+  description = "Environment name (e.g., dev, staging, prod)"
   default     = "dev"
 }
 
@@ -25,4 +26,10 @@ variable "db_password" {
 
 variable "instance_type" {
   default = "t3.micro"
+}
+
+variable "aws_profile" {
+  type        = string
+  description = "Optional AWS CLI profile for local development"
+  default     = ""
 }

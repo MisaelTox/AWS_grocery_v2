@@ -4,10 +4,10 @@ variable "region" {
 }
 
 variable "project_name" {
+  type        = string
   description = "Project name for tagging resources"
   default     = "grocerymate-v2"
 }
-
 variable "environment" {
   type        = string
   description = "Environment name (e.g., dev, staging, prod)"
@@ -15,6 +15,7 @@ variable "environment" {
 }
 
 variable "db_username" {
+  type        = string
   description = "Usuario para la base de datos RDS"
   default     = "admin"
 }
@@ -25,7 +26,9 @@ variable "db_password" {
 }
 
 variable "instance_type" {
-  default = "t3.micro"
+  type        = string
+  description = "EC2 instance type for the web server"
+  default     = "t3.micro"
 }
 
 variable "aws_profile" {

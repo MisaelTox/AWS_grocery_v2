@@ -8,16 +8,18 @@ resource "tls_private_key" "ssh_key" {
   rsa_bits  = 4096
 }
 
-resource "aws_key_pair" "main" {
-  key_name   = "${var.project_name}-key"
-  public_key = tls_private_key.ssh_key.public_key_openssh
-}
 
 # Guardar el .pem localmente
 resource "local_file" "private_key_pem" {
-  content  = tls_private_key.ssh_key.private_key_pem
-  filename = "${path.module}/${var.project_name}-key.pem"
+  content         = tls_private_key.ssh_key.private_key_pem
+  filename        = "${path.module}/${var.project_name}-key.pem"
   file_permission = "0400"
+}
+
+# Subir la clave pública a AWS para usarla en la instancia
+resource "aws_key_pair" "main" {
+  key_name   = "${var.project_name}-key"
+  public_key = tls_private_key.ssh_key.public_key_openssh
 }
 
 # Security Group
@@ -67,11 +69,11 @@ data "aws_ami" "amazon_linux" {
 
 # Instancia EC2
 resource "aws_instance" "web" {
-  ami                    = data.aws_ami.amazon_linux.id
-  instance_type          = var.instance_type
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
-  key_name               = aws_key_pair.main.key_name
+  ami                         = data.aws_ami.amazon_linux.id
+  instance_type               = var.instance_type
+  subnet_id                   = aws_subnet.public.id
+  vpc_security_group_ids      = [aws_security_group.web_sg.id]
+  key_name                    = aws_key_pair.main.key_name
   associate_public_ip_address = true
 
   user_data = file("${path.module}/user_data.sh")

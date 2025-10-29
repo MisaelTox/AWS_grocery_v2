@@ -76,7 +76,11 @@ resource "aws_instance" "web" {
   key_name                    = aws_key_pair.main.key_name
   associate_public_ip_address = true
 
-  user_data = file("${path.module}/user_data.sh")
+user_data = templatefile("${path.module}/user_data.tpl", {
+  db_username = var.db_username
+  db_password = var.db_password
+  db_host     = aws_db_instance.grocerymate_rds.address
+})
 
   tags = {
     Name = "${var.project_name}-ec2"

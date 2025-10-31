@@ -1,3 +1,21 @@
+# Terraform
 .terraform/
 *.tfstate
-*.tfvars
+*.tfstate.backup
+terraform.tfvars
+crash.log
+
+# Private keys
+*.pem
+*.key
+*.pub
+*.p12
+*.crt
+*.cer
+*.der
+*.csr
+*.ppk
+id_rsa
+id_ed25519
+.ssh/
+.env

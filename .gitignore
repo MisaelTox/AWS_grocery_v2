@@ -30,6 +30,14 @@ override.tf.json
 *.bak
 *.log
 secrets.txt
+# SSH & Private Keys
+*.pem
+*.key
+*.pub
+*.ppk
+id_rsa
+id_ed25519
+.ssh/
 
 # -----------------------------
 # System & editor files

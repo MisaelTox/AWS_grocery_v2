@@ -1,23 +1,63 @@
-.idea/aws.xml
-frontend/frontend-build.zip
-frontend/temp_extract/
-frontend/src/config.js~
-venv/
-# --- Sensitive AWS and Terraform files ---
-*.pem
-*.key
+##############################################
+# .gitignore
+# GroceryMate Terraform Project
+##############################################
+
+# -----------------------------
+# Terraform files
+# -----------------------------
 *.tfstate
-*.tfstate.backup
-terraform.tfvars
+*.tfstate.*
+*.tfvars
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 .terraform/
 .terraform.lock.hcl
 
-# --- System / Editor files ---
-.DS_Store
+# -----------------------------
+# Sensitive or personal data
+# -----------------------------
+*.pem
+*.key
+*.crt
+*.p12
+*.zip
+*.env
+*.bak
 *.log
+secrets.txt
+
+# -----------------------------
+# System & editor files
+# -----------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
 *.swp
+*.swo
+*.tmp
+*.backup
+*.retry
 
-# --- Python or app caches ---
+# -----------------------------
+# Python-related (for app layer)
+# -----------------------------
 __pycache__/
-.env
+*.pyc
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
 
+# -----------------------------
+# OS cache & local history
+# -----------------------------
+.cache/
+.history/
+.local/

@@ -18,7 +18,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Common tags applied to all resources
 locals {
   common_tags = {
     Project     = "GroceryMate"

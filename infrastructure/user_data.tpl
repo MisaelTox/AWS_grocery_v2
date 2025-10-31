@@ -1,39 +1,28 @@
 #!/bin/bash
-set -e
+###########################################################
+# GroceryMate EC2 Bootstrapping Script
+###########################################################
 
-# Update system packages
-yum update -y
+sudo yum update -y
+sudo yum install -y git python3-pip postgresql
 
-# Install dependencies
-yum groupinstall -y "Development Tools"
-yum install -y gcc openssl-devel bzip2-devel libffi-devel zlib-devel wget make git
-
-# Install Python 3.9 from source
-cd /usr/src
-wget https://www.python.org/ftp/python/3.9.18/Python-3.9.18.tgz
-tar xzf Python-3.9.18.tgz
-cd Python-3.9.18
-./configure --enable-optimizations
-make altinstall
-
-# Verify installation
-python3.9 --version
-
-# Clone your project repository
 cd /home/ec2-user
-git clone https://github.com/YOUR_GITHUB_USERNAME/AWS_grocery_v2.git
-cd AWS_grocery_v2/backend
+git clone https://github.com/MisaelTox/AWS_grocery_v2.git
+cd AWS_grocery_v2
 
-# Fix permissions
-chown -R ec2-user:ec2-user /home/ec2-user/AWS_grocery_v2
+pip3 install -r requirements.txt
 
-# Create and activate a virtual environment
-python3.9 -m venv venv
-source venv/bin/activate
+cat <<EOF > .env
+DB_HOST=${db_host}
+DB_NAME=${db_name}
+DB_USER=${db_username}
+DB_PASSWORD=${db_password}
+EOF
 
-# Install project dependencies
-pip install --upgrade pip
-pip install -r requirements.txt
+sudo mkdir -p /var/log/grocerymate
+sudo chmod 777 /var/log/grocerymate
 
-# Run the application (adjust as needed)
-nohup python3.9 run.py > app.log 2>&1 &
+nohup python3 app.py > /var/log/grocerymate/app.log 2>&1 &
+
+echo "nohup python3 /home/ec2-user/AWS_grocery_v2/app.py > /var/log/grocerymate/app.log 2>&1 &" | sudo tee -a /etc/rc.local
+sudo chmod +x /etc/rc.local

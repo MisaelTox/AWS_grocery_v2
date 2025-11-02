@@ -34,27 +34,24 @@ resource "aws_subnet" "public" {
   tags = merge(local.common_tags, { Name = "public-subnet" })
 }
 
-# -----------------------------
 # Private Subnet A (RDS)
-# -----------------------------
 resource "aws_subnet" "private_a" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = var.private_subnet_cidr
+  cidr_block        = "10.0.2.0/24"   # Primera privada
   availability_zone = "${var.aws_region}a"
 
   tags = merge(local.common_tags, { Name = "private-subnet-a" })
 }
 
-# -----------------------------
 # Private Subnet B (RDS)
-# -----------------------------
 resource "aws_subnet" "private_b" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24"
+  cidr_block        = "10.0.3.0/24"   # Segunda privada (cambia este)
   availability_zone = "${var.aws_region}b"
 
   tags = merge(local.common_tags, { Name = "private-subnet-b" })
 }
+
 
 # -----------------------------
 # Route Table (Public)

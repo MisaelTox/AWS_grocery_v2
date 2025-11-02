@@ -23,7 +23,6 @@ resource "aws_s3_bucket_versioning" "versioning" {
     status = "Enabled"
   }
 }
-
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   bucket = aws_s3_bucket.grocerymate_bucket.id
 
@@ -31,13 +30,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     id     = "expire-old-versions"
     status = "Enabled"
 
+    filter {
+      prefix = "" # applies to all objects
+    }
+
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
   }
-}
-
-output "bucket_name" {
-  description = "S3 bucket name"
-  value       = aws_s3_bucket.grocerymate_bucket.bucket
 }

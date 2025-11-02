@@ -1,6 +1,6 @@
 ##############################
 # network.tf
-# Basic Free-Tier Networking Setup
+# Basic Free-Tier Networking Setup (Multi-AZ Ready)
 ##############################
 
 # -----------------------------
@@ -35,14 +35,25 @@ resource "aws_subnet" "public" {
 }
 
 # -----------------------------
-# Private Subnet (RDS)
+# Private Subnet A (RDS)
 # -----------------------------
-resource "aws_subnet" "private" {
+resource "aws_subnet" "private_a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = var.private_subnet_cidr
+  availability_zone = "${var.aws_region}a"
+
+  tags = merge(local.common_tags, { Name = "private-subnet-a" })
+}
+
+# -----------------------------
+# Private Subnet B (RDS)
+# -----------------------------
+resource "aws_subnet" "private_b" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.3.0/24"
   availability_zone = "${var.aws_region}b"
 
-  tags = merge(local.common_tags, { Name = "private-subnet" })
+  tags = merge(local.common_tags, { Name = "private-subnet-b" })
 }
 
 # -----------------------------

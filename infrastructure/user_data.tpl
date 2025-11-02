@@ -26,3 +26,4 @@ nohup python3 app.py > /var/log/grocerymate/app.log 2>&1 &
 
 echo "nohup python3 /home/ec2-user/AWS_grocery_v2/app.py > /var/log/grocerymate/app.log 2>&1 &" | sudo tee -a /etc/rc.local
 sudo chmod +x /etc/rc.local
+ 

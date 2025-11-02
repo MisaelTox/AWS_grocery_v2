@@ -6,6 +6,7 @@
 resource "aws_s3_bucket" "grocerymate_bucket" {
   bucket = var.bucket_name
   tags   = merge(local.common_tags, { Name = "grocerymate-bucket" })
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "public_block" {

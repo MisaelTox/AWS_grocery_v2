@@ -17,7 +17,7 @@ resource "aws_instance" "app" {
   instance_type          = "t3.micro"
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  key_name               = var.key_name
+  key_name               = "grocerymate-key"
 
   user_data = templatefile("${path.module}/user_data.tpl", {
     db_host     = aws_db_instance.postgres.address
@@ -25,6 +25,7 @@ resource "aws_instance" "app" {
     db_username = var.db_username
     db_password = var.db_password
   })
+iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
 
   tags = merge(local.common_tags, {
     Name = "GroceryMate-EC2"

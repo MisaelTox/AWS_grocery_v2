@@ -1,175 +1,179 @@
-# GroceryMate
+<h1 align="center">🛒 GroceryMate Cloud Deployment</h1>
 
-## 🏆 GroceryMate E-Commerce Platform
-
-[![Python](https://img.shields.io/badge/Language-Python%2C%20JavaScript-blue)](https://www.python.org/)
-[![OS](https://img.shields.io/badge/OS-Linux%2C%20Windows%2C%20macOS-green)](https://www.kernel.org/)
-[![Database](https://img.shields.io/badge/Database-PostgreSQL-336791)](https://www.postgresql.org/)
-[![GitHub Release](https://img.shields.io/github/v/release/AlejandroRomanIbanez/AWS_grocery)](https://github.com/AlejandroRomanIbanez/AWS_grocery/releases/tag/v2.0.0)
-[![Free](https://img.shields.io/badge/Free_for_Non_Commercial_Use-brightgreen)](#-license)
-
-⭐ **Star us on GitHub** — it motivates us a lot!
+<p align="center">
+  Full AWS Cloud deployment of the GroceryMate web app, using <b>Terraform</b>, <b>Docker</b>, and <b>Flask</b>.<br>
+  Developed as part of the <b>Masterschool Cloud Engineering</b>.
+</p>
 
 ---
 
-## 📌 Table of Contents
+<h2>🚀 Overview</h2>
 
-- [Overview](#-overview)
-- [Features](#-features)
-- [Screenshots & Demo](#-screenshots--demo)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-  - [Clone Repository](#-clone-repository)
-  - [Configure PostgreSQL](#-configure-postgresql)
-  - [Populate Database](#-populate-database)
-  - [Set Up Python Environment](#-set-up-python-environment)
-  - [Set Environment Variables](#-set-environment-variables)
-  - [Start the Application](#-start-the-application)
-- [Usage](#-usage)
-- [Contributing](#-contributing)
-- [License](#-license)
+<p>
+  GroceryMate is a modern e-commerce web app designed for grocery shopping.
+  Users can browse products, manage their cart, and simulate purchases.
+  The backend is built with <b>Flask</b> and connected to a <b>PostgreSQL RDS</b> database.
+  The app runs inside a <b>Docker container</b> on <b>AWS EC2</b>, with static files stored in <b>S3</b>.
+  The full infrastructure is provisioned automatically using <b>Terraform</b>.
+</p>
 
-## 🚀 Overview
+---
 
-GroceryMate is an application developed as part of the Masterschools program by **Alejandro Roman Ibanez**. It is a modern, full-featured e-commerce platform designed for seamless online grocery shopping. It provides an intuitive user interface and a secure backend, allowing users to browse products, manage their shopping basket, and complete purchases efficiently.
+<h2>☁️ Architecture</h2>
 
-GroceryMate is a modern, full-featured e-commerce platform designed for seamless online grocery shopping. It provides an intuitive user interface and a secure backend, allowing users to browse products, manage their shopping basket, and complete purchases efficiently.
+<p align="center">
+  <img src="groceryapp.drawio.png" alt="Architecture Diagram" width="700">
+</p>
 
-## 🛒 Features
+<p><b>Workflow:</b></p>
+<ol>
+  <li>Terraform provisions VPC, subnets, EC2, RDS, and S3.</li>
+  <li>EC2 runs Flask inside Docker (port 5000).</li>
+  <li>Flask connects to RDS via private networking.</li>
+  <li>S3 is used for static assets via IAM access.</li>
+  <li>App is reachable through the EC2 public IP.</li>
+</ol>
 
-- **🛡️ User Authentication**: Secure registration, login, and session management.
-- **🔒 Protected Routes**: Access control for authenticated users.
-- **🔎 Product Search & Filtering**: Browse products, apply filters, and sort by category or price.
-- **⭐ Favorites Management**: Save preferred products.
-- **🛍️ Shopping Basket**: Add, view, modify, and remove items.
-- **💳 Checkout Process**:
-  - Secure billing and shipping information handling.
-  - Multiple payment options.
-  - Automatic total price calculation.
+---
 
-## 📸 Screenshots & Demo
+<h2>🧱 Project Structure</h2>
 
-![imagen](https://github.com/user-attachments/assets/ea039195-67a2-4bf2-9613-2ee1e666231a)
-![imagen](https://github.com/user-attachments/assets/a87e5c50-5a9e-45b8-ad16-2dbff41acd00)
-![imagen](https://github.com/user-attachments/assets/589aae62-67ef-4496-bd3b-772cd32ca386)
-![imagen](https://github.com/user-attachments/assets/2772b85e-81f7-446a-9296-4fdc2b652cb7)
+<pre>
+AWS_grocery_v2/
+├── backend/
+│   ├── app/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── run.py
+│   └── .env
+├── infrastructure/
+│   ├── main.tf
+│   ├── ec2.tf
+│   ├── rds.tf
+│   ├── s3.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── terraform.tfvars
+├── diagram.png
+└── README.md
+</pre>
 
-https://github.com/user-attachments/assets/d1c5c8e4-5b16-486a-b709-4cf6e6cce6bc
+---
 
-## 📋 Prerequisites
+<h2>🐳 Docker Setup</h2>
 
-Ensure the following dependencies are installed before running the application:
+<pre><code>FROM python:3.9-slim
 
-- **🐍 Python (>=3.11)**
-- **🐘 PostgreSQL** – Database for storing product and user information.
-- **🛠️ Git** – Version control system.
+WORKDIR /app
 
-## ⚙️ Installation
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-### 🔹 Clone Repository
+COPY . .
 
-```sh
-git clone --branch version2 https://github.com/AlejandroRomanIbanez/AWS_grocery.git && cd AWS_grocery
-```
+EXPOSE 5000
+CMD ["python", "run.py"]
+</code></pre>
 
-### 🔹 Configure PostgreSQL
+<p><b>Explanation:</b></p>
+<ul>
+  <li>Starts from a clean Python 3.9 image.</li>
+  <li>Copies project files into the container.</li>
+  <li>Installs dependencies from <code>requirements.txt</code>.</li>
+  <li>Runs Flask on port 5000.</li>
+</ul>
 
-Before creating the database user, you can choose a custom username and password to enhance security. Replace `<your_secure_password>` with a strong password of your choice in the following commands.
+---
 
-Create database and user:
+<h2>⚙️ Running on EC2</h2>
 
-```sh
-psql -U postgres -c "CREATE DATABASE grocerymate_db;"
-psql -U postgres -c "CREATE USER grocery_user WITH ENCRYPTED PASSWORD '<your_secure_password>';"  # Replace <your_secure_password> with a strong password of your choice
-psql -U postgres -c "ALTER USER grocery_user WITH SUPERUSER;"
-```
+<pre><code>cd ~/AWS_grocery_v2/backend
+sudo docker build -t grocerymate .
+sudo docker run -d -p 5000:5000 --env-file .env grocerymate
+</code></pre>
 
-### 🔹 Populate Database
+<p>Check container status:</p>
 
-```sh
-psql -U grocery_user -d grocerymate_db -f backend/app/sqlite_dump_clean.sql
-```
+<pre><code>sudo docker ps
+</code></pre>
 
-Verify insertion:
+<p>Then open in your browser:</p>
 
-```sh
-psql -U grocery_user -d grocerymate_db -c "SELECT * FROM users;"
-psql -U grocery_user -d grocerymate_db -c "SELECT * FROM products;"
-```
+<pre><code>http://&lt;EC2_PUBLIC_IP&gt;:5000
+</code></pre>
 
-### 🔹 Set Up Python Environment
+---
 
+<h2>🧩 Deployment Steps</h2>
 
-Install dependencies in an activated virtual Enviroment:
+<ol>
+  <li><b>Configure variables:</b> Edit <code>terraform.tfvars</code> with your region, key pair, and passwords.</li>
+  <li><b>Deploy:</b>
+    <pre><code>terraform init
+terraform apply -auto-approve</code></pre>
+  </li>
+  <li><b>Connect to EC2:</b>
+    <pre><code>ssh -i "grocerymate-key.pem" ec2-user@&lt;EC2_PUBLIC_IP&gt;</code></pre>
+  </li>
+  <li><b>Run the app:</b>
+    <pre><code>cd ~/AWS_grocery_v2/backend
+sudo docker build -t grocerymate .
+sudo docker run -d -p 5000:5000 --env-file .env grocerymate</code></pre>
+  </li>
+</ol>
 
-```sh
-cd backend
-pip install -r requirements.txt
-```
-OR (if pip doesn't exist)
-```sh
-pip3 install -r requirements.txt
-```
+---
 
-### 🔹 Set Environment Variables
+<h2>🗂️ Environment Variables</h2>
 
-Create a `.env` file:
+<pre><code>DB_HOST=grocerymate-db.xxxxxx.eu-north-1.rds.amazonaws.com
+DB_NAME=grocerymate_db
+DB_USER=grocery_user
+DB_PASSWORD=StrongPassword123
+</code></pre>
 
-```sh
-touch .env  # macOS/Linux
-ni .env -Force  # Windows
-```
+---
 
-Generate a secure JWT key:
+<h2>🧹 Clean Up</h2>
 
-```sh
-python3 -c "import secrets; print(secrets.token_hex(32))"
-```
+<p>To avoid AWS costs, destroy the infrastructure:</p>
 
-Update `.env`:
+<pre><code>terraform destroy -auto-approve
+</code></pre>
 
-```sh
-nano .env
-```
+---
 
-Fill in the following information (make sure to replace the placeholders):
+<h2>📸 What’s Working</h2>
 
-```ini
-JWT_SECRET_KEY=<your_generated_key>
-POSTGRES_USER=grocery_user
-POSTGRES_PASSWORD=<your_password>
-POSTGRES_DB=grocerymate_db
-POSTGRES_HOST=localhost
-POSTGRES_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
-```
+<ul>
+  <li>✅ Terraform provisions EC2, RDS, S3, and networking</li>
+  <li>✅ Docker builds and runs successfully</li>
+  <li>✅ Flask connects to RDS via environment variables</li>
+  <li>✅ App accessible via EC2 public IP</li>
+  <li>✅ Infrastructure fully reproducible</li>
+</ul>
 
-### 🔹 Start the Application
+---
 
-```sh
-python3 run.py
-```
+<h2>📘 About This Project</h2>
 
-## 📖 Usage
+<p>
+  This project was developed as part of the <b>Masterschool Cloud Engineering (June 2025 Cohort)</b>.
+  The goal was to deploy a real-world Flask application on AWS using <b>Terraform</b> and <b>Docker</b>,
+  demonstrating automation, Infrastructure as Code, and secure architecture design.
+</p>
 
-- Access the application at [http://localhost:5000](http://localhost:5000)
-- Register/Login to your account
-- Browse and search for products
-- Manage favorites and shopping basket
-- Proceed through the checkout process
+---
 
-## 🤝 Contributing
+<h2>👨‍💻 Authors & Contributions</h2>
 
-We welcome contributions! Please follow these steps:
+<p>
+  <b>Original Application:</b> Alejandro Román Ibáñez<br>
+  <i>Base Flask application and initial project design</i><br><br>
 
-1. Fork the repository.
-2. Create a new feature branch (`feature/your-feature`).
-3. Implement your changes and commit them.
-4. Push your branch and create a pull request.
+  <b>Infrastructure & Deployment:</b> Misael Tóxcatl<br>
+  <i>Implemented full Infrastructure as Code using Terraform and Docker deployment on AWS (EC2, RDS, S3)</i><br><br>
 
-## 📜 License
-
-This project is licensed under the MIT License.
-
-
-
+  Masterschool Cloud Engineering Cohort – June 2025
+</p>
 

@@ -1,39 +1,53 @@
-##############################################
-# EC2 Instance - GroceryMate Application
-##############################################
+##############################
+# ec2.tf
+# EC2 instance running GroceryMate in Docker
+##############################
 
+# ----------------------------------------------------------
+# Amazon Linux 2 AMI (última versión en la región configurada)
+# ----------------------------------------------------------
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
   }
 }
 
-resource "aws_instance" "app" {
-  ami                    = data.aws_ami.amazon_linux.id
-  instance_type          = "t3.micro"
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-  key_name               = "grocerymate-key"
 
+# ----------------------------------------------------------
+# EC2 Instance con Docker + GroceryMate
+# ----------------------------------------------------------
+resource "aws_instance" "app_server" {
+  ami                         = data.aws_ami.amazon_linux.id
+  instance_type               = var.instance_type
+  subnet_id                   = aws_subnet.public_a.id
+  vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
+  key_name                    = var.key_name
+  associate_public_ip_address = true
+
+  # Archivo de arranque (Bootstrap)
   user_data = templatefile("${path.module}/user_data.tpl", {
     db_host     = aws_db_instance.postgres.address
     db_name     = var.db_name
     db_username = var.db_username
     db_password = var.db_password
   })
-iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
 
-  tags = merge(local.common_tags, {
-    Name = "GroceryMate-EC2"
-  })
+  tags = merge(local.common_tags, { Name = "grocerymate-ec2" })
 }
 
+# ----------------------------------------------------------
+# Output con IP pública
+# ----------------------------------------------------------
+output "ec2_public_ip" {
+  description = "Public IP address of the GroceryMate EC2 instance"
+  value       = aws_instance.app_server.public_ip
+}
 
-output "public_ip" {
-  description = "Public IP of the GroceryMate EC2 instance"
-  value       = aws_instance.app.public_ip
+output "ec2_public_dns" {
+  description = "Public DNS of the GroceryMate EC2 instance"
+  value       = aws_instance.app_server.public_dns
 }

@@ -1,17 +1,25 @@
 #!/bin/bash
 ###########################################################
-# GroceryMate EC2 Bootstrapping Script
+# GroceryMate EC2 Bootstrap Script - Terraform Ready
 ###########################################################
 
+# Actualiza e instala dependencias
 sudo yum update -y
-sudo yum install -y git python3-pip postgresql
+sudo yum install -y git docker postgresql
 
+# Habilita e inicia Docker
+sudo systemctl enable docker
+sudo systemctl start docker
+
+# Agrega ec2-user al grupo docker
+sudo usermod -aG docker ec2-user
+
+# Clona el proyecto
 cd /home/ec2-user
 git clone https://github.com/MisaelTox/AWS_grocery_v2.git
 cd AWS_grocery_v2
 
-pip3 install -r requirements.txt
-
+# Crea archivo de entorno (.env)
 cat <<EOF > .env
 DB_HOST=${db_host}
 DB_NAME=${db_name}
@@ -19,11 +27,15 @@ DB_USER=${db_username}
 DB_PASSWORD=${db_password}
 EOF
 
-sudo mkdir -p /var/log/grocerymate
-sudo chmod 777 /var/log/grocerymate
+# Construye la imagen Docker
+sudo docker build -t grocerymate .
 
-nohup python3 app.py > /var/log/grocerymate/app.log 2>&1 &
+# Ejecuta el contenedor Flask conectado al RDS
+sudo docker run -d \
+  --name grocerymate_app \
+  -p 80:5000 \
+  --env-file .env \
+  grocerymate
 
-echo "nohup python3 /home/ec2-user/AWS_grocery_v2/app.py > /var/log/grocerymate/app.log 2>&1 &" | sudo tee -a /etc/rc.local
-sudo chmod +x /etc/rc.local
- 
+# Guarda logs
+sudo docker logs -f grocerymate_app > /var/log/grocerymate.log 2>&1 &

@@ -27,11 +27,24 @@ variable "key_name" {
 }
 
 # -----------------------------
+# Random ID (para nombres únicos)
+# -----------------------------
+resource "random_id" "suffix" {
+  byte_length = 2
+}
+
+# -----------------------------
 # S3 Configuration
 # -----------------------------
 variable "bucket_name" {
-  description = "Name of the S3 bucket for storing user avatars or files"
+  description = "Base name of the S3 bucket for storing user avatars or files"
   type        = string
+  default     = "grocerymate-bucket"
+}
+
+# Nombre final del bucket (único globalmente)
+locals {
+  full_bucket_name = "${var.bucket_name}-${random_id.suffix.hex}"
 }
 
 # -----------------------------
@@ -70,8 +83,14 @@ variable "public_subnet_cidr" {
   default     = "10.0.1.0/24"
 }
 
-variable "private_subnet_cidr" {
-  description = "CIDR block for the private subnet (RDS)"
+variable "private_subnet_cidr_a" {
+  description = "CIDR block for the first private subnet (RDS AZ A)"
   type        = string
   default     = "10.0.2.0/24"
+}
+
+variable "private_subnet_cidr_b" {
+  description = "CIDR block for the second private subnet (RDS AZ B)"
+  type        = string
+  default     = "10.0.3.0/24"
 }

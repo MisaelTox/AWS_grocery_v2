@@ -25,33 +25,33 @@ resource "aws_internet_gateway" "igw" {
 # -----------------------------
 # Public Subnet (EC2)
 # -----------------------------
-resource "aws_subnet" "public" {
+resource "aws_subnet" "public_a" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidr
   map_public_ip_on_launch = true
   availability_zone       = "${var.aws_region}a"
 
-  tags = merge(local.common_tags, { Name = "public-subnet" })
+  tags = merge(local.common_tags, { Name = "public-subnet-a" })
 }
 
-# Private Subnet A (RDS)
+# -----------------------------
+# Private Subnets (RDS)
+# -----------------------------
 resource "aws_subnet" "private_a" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24" # Primera privada
+  cidr_block        = var.private_subnet_cidr_a
   availability_zone = "${var.aws_region}a"
 
   tags = merge(local.common_tags, { Name = "private-subnet-a" })
 }
 
-# Private Subnet B (RDS)
 resource "aws_subnet" "private_b" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.3.0/24" # Segunda privada (cambia este)
+  cidr_block        = var.private_subnet_cidr_b
   availability_zone = "${var.aws_region}b"
 
   tags = merge(local.common_tags, { Name = "private-subnet-b" })
 }
-
 
 # -----------------------------
 # Route Table (Public)
@@ -68,7 +68,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table_association" "public_assoc" {
-  subnet_id      = aws_subnet.public.id
+  subnet_id      = aws_subnet.public_a.id
   route_table_id = aws_route_table.public.id
 }
 
@@ -81,6 +81,7 @@ resource "aws_security_group" "ec2_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress {
+    description = "Allow SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
@@ -88,6 +89,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   ingress {
+    description = "Allow HTTP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -95,6 +97,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   egress {
+    description = "Allow all outbound"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"

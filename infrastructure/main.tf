@@ -15,17 +15,10 @@ output "aws_account_id" {
 ##########################################
 # 2️⃣ Outputs for Reference
 ##########################################
-output "ec2_public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = aws_instance.app.public_ip
-}
+
 
 output "rds_endpoint" {
   description = "Endpoint of the RDS PostgreSQL database"
   value       = aws_db_instance.postgres.address
 }
 
-output "s3_bucket_name" {
-  description = "Name of the created S3 bucket"
-  value       = aws_s3_bucket.grocerymate_bucket.bucket
-}

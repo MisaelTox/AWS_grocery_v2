@@ -18,10 +18,3 @@ provider "aws" {
   region = var.aws_region
 }
 
-locals {
-  common_tags = {
-    Project     = "GroceryMate"
-    Environment = "dev"
-    Owner       = "terraform"
-  }
-}

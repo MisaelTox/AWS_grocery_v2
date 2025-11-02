@@ -3,12 +3,15 @@
 # Free-tier S3 bucket for static or media storage
 ##############################
 
+# S3 Bucket (usa nombre único del locals.tf + random_id)
 resource "aws_s3_bucket" "grocerymate_bucket" {
-  bucket = var.bucket_name
-  tags   = merge(local.common_tags, { Name = "grocerymate-bucket" })
+  bucket        = local.full_bucket_name
   force_destroy = true
+
+  tags = merge(local.common_tags, { Name = local.full_bucket_name })
 }
 
+# Bloquea cualquier acceso público
 resource "aws_s3_bucket_public_access_block" "public_block" {
   bucket                  = aws_s3_bucket.grocerymate_bucket.id
   block_public_acls       = true
@@ -17,6 +20,7 @@ resource "aws_s3_bucket_public_access_block" "public_block" {
   restrict_public_buckets = true
 }
 
+# Activa el versionado (buenas prácticas)
 resource "aws_s3_bucket_versioning" "versioning" {
   bucket = aws_s3_bucket.grocerymate_bucket.id
 
@@ -24,6 +28,8 @@ resource "aws_s3_bucket_versioning" "versioning" {
     status = "Enabled"
   }
 }
+
+# Configura la expiración de versiones antiguas (para ahorrar costos)
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   bucket = aws_s3_bucket.grocerymate_bucket.id
 
@@ -32,11 +38,17 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     status = "Enabled"
 
     filter {
-      prefix = "" # applies to all objects
+      prefix = "" # aplica a todos los objetos
     }
 
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
   }
+}
+
+# Output útil para ver el nombre del bucket
+output "s3_bucket_name" {
+  description = "Nombre único del bucket S3 GroceryMate"
+  value       = aws_s3_bucket.grocerymate_bucket.bucket
 }

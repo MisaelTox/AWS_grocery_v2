@@ -1,9 +1,9 @@
 ##############################
 # s3.tf
-# Free-tier S3 bucket for static or media storage
+# bucket for static or media storage
 ##############################
 
-# S3 Bucket (usa nombre único del locals.tf + random_id)
+# S3 Bucket 
 resource "aws_s3_bucket" "grocerymate_bucket" {
   bucket        = local.full_bucket_name
   force_destroy = true
@@ -11,7 +11,7 @@ resource "aws_s3_bucket" "grocerymate_bucket" {
   tags = merge(local.common_tags, { Name = local.full_bucket_name })
 }
 
-# Bloquea cualquier acceso público
+# Block any public access
 resource "aws_s3_bucket_public_access_block" "public_block" {
   bucket                  = aws_s3_bucket.grocerymate_bucket.id
   block_public_acls       = true
@@ -20,7 +20,7 @@ resource "aws_s3_bucket_public_access_block" "public_block" {
   restrict_public_buckets = true
 }
 
-# Activa el versionado (buenas prácticas)
+# Enable versioning
 resource "aws_s3_bucket_versioning" "versioning" {
   bucket = aws_s3_bucket.grocerymate_bucket.id
 
@@ -29,7 +29,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
   }
 }
 
-# Configura la expiración de versiones antiguas (para ahorrar costos)
+# Configure expiration of old versions (to reduce costs)
 resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   bucket = aws_s3_bucket.grocerymate_bucket.id
 
@@ -38,7 +38,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
     status = "Enabled"
 
     filter {
-      prefix = "" # aplica a todos los objetos
+      prefix = "" 
     }
 
     noncurrent_version_expiration {
@@ -47,7 +47,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "lifecycle" {
   }
 }
 
-# Output útil para ver el nombre del bucket
+# Useful output to display the bucket name
 output "s3_bucket_name" {
   description = "Nombre único del bucket S3 GroceryMate"
   value       = aws_s3_bucket.grocerymate_bucket.bucket

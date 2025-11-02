@@ -1,6 +1,6 @@
 ##############################
 # network.tf
-# Basic Free-Tier Networking Setup (Multi-AZ Ready)
+# Networking Setup (Multi-AZ Ready)
 ##############################
 
 # -----------------------------

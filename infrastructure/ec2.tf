@@ -4,7 +4,7 @@
 ##############################
 
 # ----------------------------------------------------------
-# Amazon Linux 2 AMI (última versión en la región configurada)
+# Amazon Linux 2 AMI 
 # ----------------------------------------------------------
 data "aws_ami" "amazon_linux" {
   most_recent = true
@@ -28,7 +28,7 @@ resource "aws_instance" "app_server" {
   key_name                    = var.key_name
   associate_public_ip_address = true
 
-  # Archivo de arranque (Bootstrap)
+  # Bootstrap
   user_data = templatefile("${path.module}/user_data.tpl", {
     db_host     = aws_db_instance.postgres.address
     db_name     = var.db_name
@@ -40,7 +40,7 @@ resource "aws_instance" "app_server" {
 }
 
 # ----------------------------------------------------------
-# Output con IP pública
+# Output with public IP
 # ----------------------------------------------------------
 output "ec2_public_ip" {
   description = "Public IP address of the GroceryMate EC2 instance"

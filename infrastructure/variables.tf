@@ -27,7 +27,7 @@ variable "key_name" {
 }
 
 # -----------------------------
-# Random ID (para nombres únicos)
+# Random ID 
 # -----------------------------
 resource "random_id" "suffix" {
   byte_length = 2
@@ -42,7 +42,7 @@ variable "bucket_name" {
   default     = "grocerymate-bucket"
 }
 
-# Nombre final del bucket (único globalmente)
+
 locals {
   full_bucket_name = "${var.bucket_name}-${random_id.suffix.hex}"
 }

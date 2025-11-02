@@ -1,6 +1,6 @@
 ##########################################
 # MAIN CONFIGURATION FILE
-# Cloud Engineering Project - Masterschool
+# Cloud Engineering Project 
 # Linux Environment (Amazon Linux 2)
 ##########################################
 

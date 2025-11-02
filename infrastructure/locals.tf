@@ -3,7 +3,7 @@
 # Common tags and reusable variables
 ##############################
 
-# Etiquetas comunes aplicadas a todos los recursos
+# Common tags applied to all resources
 locals {
   common_tags = {
     Project     = "GroceryMate"

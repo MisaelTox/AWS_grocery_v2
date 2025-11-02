@@ -1,9 +1,9 @@
 ##############################
 # rds.tf
-# Free-tier RDS PostgreSQL setup (stable 15.6 version)
+# RDS PostgreSQL setup 
 ##############################
 
-# Subnet group para el RDS (2 subnets privadas en diferentes AZs)
+## Subnet group for the RDS (2 private subnets in different AZs)
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name = "rds-subnet-group"
   subnet_ids = [
@@ -14,7 +14,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
   tags = merge(local.common_tags, { Name = "rds-subnet-group" })
 }
 
-# Instancia RDS PostgreSQL
+# Instance RDS PostgreSQL
 resource "aws_db_instance" "postgres" {
   identifier             = "grocerymate-db"
   engine                 = "postgres"
@@ -35,7 +35,7 @@ resource "aws_db_instance" "postgres" {
 }
 
 
-# Output del endpoint del RDS
+# Output for the RDS endpoint
 output "db_endpoint" {
   description = "RDS PostgreSQL endpoint"
   value       = aws_db_instance.postgres.address

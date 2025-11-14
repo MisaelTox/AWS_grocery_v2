@@ -1,7 +1,6 @@
-##############################
-# network.tf
-# Networking Setup (Multi-AZ Ready)
-##############################
+##############################################
+# NETWORK MODULE - GroceryMate
+##############################################
 
 # -----------------------------
 # VPC
@@ -11,7 +10,11 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = merge(local.common_tags, { Name = "grocerymate-vpc" })
+  tags = merge(var.common_tags, { Name = "${var.project_name}-vpc" })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # -----------------------------
@@ -19,7 +22,7 @@ resource "aws_vpc" "main" {
 # -----------------------------
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
-  tags   = merge(local.common_tags, { Name = "grocerymate-igw" })
+  tags   = merge(var.common_tags, { Name = "${var.project_name}-igw" })
 }
 
 # -----------------------------
@@ -31,7 +34,7 @@ resource "aws_subnet" "public_a" {
   map_public_ip_on_launch = true
   availability_zone       = "${var.aws_region}a"
 
-  tags = merge(local.common_tags, { Name = "public-subnet-a" })
+  tags = merge(var.common_tags, { Name = "${var.project_name}-public-a" })
 }
 
 # -----------------------------
@@ -42,7 +45,7 @@ resource "aws_subnet" "private_a" {
   cidr_block        = var.private_subnet_cidr_a
   availability_zone = "${var.aws_region}a"
 
-  tags = merge(local.common_tags, { Name = "private-subnet-a" })
+  tags = merge(var.common_tags, { Name = "${var.project_name}-private-a" })
 }
 
 resource "aws_subnet" "private_b" {
@@ -50,11 +53,11 @@ resource "aws_subnet" "private_b" {
   cidr_block        = var.private_subnet_cidr_b
   availability_zone = "${var.aws_region}b"
 
-  tags = merge(local.common_tags, { Name = "private-subnet-b" })
+  tags = merge(var.common_tags, { Name = "${var.project_name}-private-b" })
 }
 
 # -----------------------------
-# Route Table (Public)
+# Public Route Table
 # -----------------------------
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
@@ -64,7 +67,7 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.igw.id
   }
 
-  tags = merge(local.common_tags, { Name = "public-rt" })
+  tags = merge(var.common_tags, { Name = "${var.project_name}-public-rt" })
 }
 
 resource "aws_route_table_association" "public_assoc" {
@@ -73,10 +76,10 @@ resource "aws_route_table_association" "public_assoc" {
 }
 
 # -----------------------------
-# Security Groups
+# EC2 Security Group
 # -----------------------------
 resource "aws_security_group" "ec2_sg" {
-  name        = "ec2-sg"
+  name        = "${var.project_name}-ec2-sg"
   description = "Allow SSH and HTTP access"
   vpc_id      = aws_vpc.main.id
 
@@ -85,7 +88,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ssh_cidrs
   }
 
   ingress {
@@ -93,7 +96,7 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_http_cidrs
   }
 
   egress {
@@ -104,11 +107,14 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, { Name = "ec2-sg" })
+  tags = merge(var.common_tags, { Name = "${var.project_name}-ec2-sg" })
 }
 
+# -----------------------------
+# RDS Security Group
+# -----------------------------
 resource "aws_security_group" "rds_sg" {
-  name        = "rds-sg"
+  name        = "${var.project_name}-rds-sg"
   description = "Allow PostgreSQL traffic from EC2 only"
   vpc_id      = aws_vpc.main.id
 
@@ -126,5 +132,5 @@ resource "aws_security_group" "rds_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(local.common_tags, { Name = "rds-sg" })
+  tags = merge(var.common_tags, { Name = "${var.project_name}-rds-sg" })
 }

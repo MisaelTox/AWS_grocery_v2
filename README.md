@@ -16,7 +16,7 @@ The goal is to simulate a **scalable, production-ready architecture** where a Fl
 
 ## 🧭 Architecture Diagram
 
-![AWS Architecture Diagram](grocery.png)
+![AWS Architecture Diagram](grocerydia.png)
 
 Core components:
 

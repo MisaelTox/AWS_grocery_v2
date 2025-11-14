@@ -72,6 +72,43 @@ Once completed, Terraform will output:
 
 - The Flask application automatically starts inside the Docker container.
 
+---
+
+## 🧱 Terraform Project Structure (Modular Architecture)
+
+This project was refactored following Terraform best practices by splitting the infrastructure into **independent modules**, each responsible for a specific part of the AWS architecture.  
+All modules are located in the top-level `modules/` directory and are called from the `main.tf` file inside the `infrastructure/` folder.
+
+This keeps the code cleaner, reusable, maintainable, and aligned with professional production deployments.
+
+### 📦 Modules Overview
+
+```
+modules/
+  ├── network/     # VPC, subnets, route tables, IGW, security groups
+  ├── compute/     # EC2 instance, instance profile, security group, user_data
+  ├── database/    # RDS PostgreSQL instance, subnet group, DB SG
+  ├── storage/     # S3 bucket for static and media assets
+  ├── iam/         # IAM roles and policies (EC2 -> S3, EC2 -> CloudWatch)
+  └── cloudwatch/  # CloudWatch log group configuration
+```
+
+### 🧩 How It Works
+
+- `main.tf` (inside `infrastructure/`) loads each module and passes the required variables  
+- Each module defines its own resources, variables, and outputs  
+- Terraform assembles all modules together during `terraform apply`  
+- The EC2 instance uses a `user_data` script to automate:
+  - Docker installation  
+  - Cloning this repository  
+  - Building the Flask Docker image  
+  - Running the application container  
+  - Configuring the CloudWatch Agent  
+
+This modular setup replaces the old flat structure (`network.tf`, `ec2.tf`, `rds.tf`, etc.) and is the recommended approach for production-grade infrastructure.
+
+---
+
 ## ⚙️ Running Tests
 ### 🔩 Monitoring and Logs
 You can monitor the system and check logs in two ways:

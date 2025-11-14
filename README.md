@@ -1,179 +1,144 @@
-<h1 align="center">🛒 GroceryMate Cloud Deployment</h1>
+# 🛒 GroceryMate — AWS Infrastructure Deployment with Terraform
 
 <p align="center">
-  Full AWS Cloud deployment of the GroceryMate web app, using <b>Terraform</b>, <b>Docker</b>, and <b>Flask</b>.<br>
-  Developed as part of the <b>Masterschool Cloud Engineering</b>.
+  <img src="https://img.shields.io/badge/Terraform-v1.6+-623CE4?style=flat&logo=terraform&logoColor=white"/>
+  <img src="https://img.shields.io/badge/AWS-Cloud-orange?style=flat&logo=amazonaws&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-Container-blue?style=flat&logo=docker&logoColor=white"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=flat&logo=postgresql&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Flask-Backend-black?style=flat&logo=flask&logoColor=white"/>
 </p>
+
+**Final project for the Masterschools Cloud Engineering Program**
 
 ---
 
-<h2>🚀 Overview</h2>
+## 🚀 Getting Started
 
-<p>
-  GroceryMate is a modern e-commerce web app designed for grocery shopping.
-  Users can browse products, manage their cart, and simulate purchases.
-  The backend is built with <b>Flask</b> and connected to a <b>PostgreSQL RDS</b> database.
-  The app runs inside a <b>Docker container</b> on <b>AWS EC2</b>, with static files stored in <b>S3</b>.
-  The full infrastructure is provisioned automatically using <b>Terraform</b>.
-</p>
+**GroceryMate** is a modern e-commerce platform designed for online grocery shopping.  
+This repository focuses on the **backend infrastructure deployment and automation** using **AWS Cloud Services** and **Terraform** as Infrastructure as Code (IaC).
+
+The goal is to simulate a **scalable, production-ready architecture**, where a Flask application runs inside a Docker container on EC2, connected to an RDS PostgreSQL database, with static assets stored in S3 and logs monitored through CloudWatch.
+
+See the **Deployment 📦** section to learn how to launch the project.
 
 ---
 
-<h2>☁️ Architecture</h2>
+## 🧭 Architecture Diagram
 
 <p align="center">
-  <img src="groceryapp.drawio.png" alt="Architecture Diagram" width="700">
-</p>
-
-<p><b>Workflow:</b></p>
-<ol>
-  <li>Terraform provisions VPC, subnets, EC2, RDS, and S3.</li>
-  <li>EC2 runs Flask inside Docker (port 5000).</li>
-  <li>Flask connects to RDS via private networking.</li>
-  <li>S3 is used for static assets via IAM access.</li>
-  <li>App is reachable through the EC2 public IP.</li>
-</ol>
-
----
-
-<h2>🧱 Project Structure</h2>
-
-<pre>
-AWS_grocery_v2/
-├── backend/
-│   ├── app/
-│   ├── Dockerfile
-│   ├── requirements.txt
-│   ├── run.py
-│   └── .env
-├── infrastructure/
-│   ├── main.tf
-│   ├── ec2.tf
-│   ├── rds.tf
-│   ├── s3.tf
-│   ├── variables.tf
-│   ├── outputs.tf
-│   └── terraform.tfvars
-├── diagram.png
-└── README.md
-</pre>
-
----
-
-<h2>🐳 Docker Setup</h2>
-
-<pre><code>FROM python:3.9-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 5000
-CMD ["python", "run.py"]
-</code></pre>
-
-<p><b>Explanation:</b></p>
-<ul>
-  <li>Starts from a clean Python 3.9 image.</li>
-  <li>Copies project files into the container.</li>
-  <li>Installs dependencies from <code>requirements.txt</code>.</li>
-  <li>Runs Flask on port 5000.</li>
-</ul>
-
----
-
-<h2>⚙️ Running on EC2</h2>
-
-<pre><code>cd ~/AWS_grocery_v2/backend
-sudo docker build -t grocerymate .
-sudo docker run -d -p 5000:5000 --env-file .env grocerymate
-</code></pre>
-
-<p>Check container status:</p>
-
-<pre><code>sudo docker ps
-</code></pre>
-
-<p>Then open in your browser:</p>
-
-<pre><code>http://&lt;EC2_PUBLIC_IP&gt;:5000
-</code></pre>
-
----
-
-<h2>🧩 Deployment Steps</h2>
-
-<ol>
-  <li><b>Configure variables:</b> Edit <code>terraform.tfvars</code> with your region, key pair, and passwords.</li>
-  <li><b>Deploy:</b>
-    <pre><code>terraform init
-terraform apply -auto-approve</code></pre>
-  </li>
-  <li><b>Connect to EC2:</b>
-    <pre><code>ssh -i "grocerymate-key.pem" ec2-user@&lt;EC2_PUBLIC_IP&gt;</code></pre>
-  </li>
-  <li><b>Run the app:</b>
-    <pre><code>cd ~/AWS_grocery_v2/backend
-sudo docker build -t grocerymate .
-sudo docker run -d -p 5000:5000 --env-file .env grocerymate</code></pre>
-  </li>
-</ol>
-
----
-
-<h2>🗂️ Environment Variables</h2>
-
-<pre><code>DB_HOST=grocerymate-db.xxxxxx.eu-north-1.rds.amazonaws.com
-DB_NAME=grocerymate_db
-DB_USER=grocery_user
-DB_PASSWORD=StrongPassword123
-</code></pre>
-
----
-
-<h2>🧹 Clean Up</h2>
-
-<p>To avoid AWS costs, destroy the infrastructure:</p>
-
-<pre><code>terraform destroy -auto-approve
-</code></pre>
-
----
-
-<h2>📸 What’s Working</h2>
-
-<ul>
-  <li>✅ Terraform provisions EC2, RDS, S3, and networking</li>
-  <li>✅ Docker builds and runs successfully</li>
-  <li>✅ Flask connects to RDS via environment variables</li>
-  <li>✅ App accessible via EC2 public IP</li>
-  <li>✅ Infrastructure fully reproducible</li>
-</ul>
-
----
-
-<h2>📘 About This Project</h2>
-
-<p>
-  This project was developed as part of the <b>Masterschool Cloud Engineering (June 2025 Cohort)</b>.
-  The goal was to deploy a real-world Flask application on AWS using <b>Terraform</b> and <b>Docker</b>,
-  demonstrating automation, Infrastructure as Code, and secure architecture design.
+  <img src="grocerydia.png" alt="AWS Architecture Diagram" width="800">
 </p>
 
 ---
 
-<h2>👨‍💻 Authors & Contributions</h2>
+### 📋 Prerequisites
 
-<p>
-  <b>Original Application:</b> Alejandro Román Ibáñez<br>
-  <i>Base Flask application and initial project design</i><br><br>
+Make sure you have the following installed and configured:
 
-  <b>Infrastructure & Deployment:</b> Misael Tóxcatl<br>
-  <i>Implemented full Infrastructure as Code using Terraform and Docker deployment on AWS (EC2, RDS, S3)</i><br><br>
+```bash
+- AWS CLI with valid IAM credentials
+- Terraform v1.6 or higher
+- SSH key pair for EC2 access
+- Git
+🔧 Installation
+Follow these steps to deploy the infrastructure:
 
-  Masterschool Cloud Engineering Cohort – June 2025
-</p>
+
+# Clone the repository
+git clone https://github.com/MisaelTox/AWS_grocery_v2.git
+cd AWS_grocery_v2/infrastructure
+
+# (Optional) Use your AWS SSO profile if applicable
+export <Your_Profile>
+
+# Initialize Terraform
+terraform init
+
+# Validate the configuration
+terraform validate
+
+# Generate the execution plan
+terraform plan
+
+# Apply and create all resources
+terraform apply
+```
+
+Once completed, Terraform will output:
+
+- The public IP of the EC2 instance
+
+- The endpoint of the RDS database
+
+- The Flask application automatically starts inside the Docker container.
+
+## ⚙️ Running Tests
+### 🔩 Monitoring and Logs
+You can monitor the system and check logs in two ways:
+
+In the AWS Console:
+
+- CloudWatch → Log groups → /aws/flask/grocerymate
+
+Inside the EC2 instance:
+```bash
+sudo tail -f /var/log/grocerymate.log
+```
+### ⌨️ Metrics Monitored
+CPU: cpu_usage_idle, cpu_usage_iowait
+
+Memory: mem_used_percent
+
+The CloudWatch Agent is automatically configured when the EC2 instance launches and continuously streams both logs and metrics in real time.
+
+### 📦 Deployment
+The full architecture is provisioned with Terraform and includes:
+
+- EC2 (Amazon Linux 2): Flask application running in Docker
+- RDS (PostgreSQL): main application database
+- S3: static and media file storage
+- CloudWatch: log and metric monitoring
+- IAM: secure cross-service roles and policies
+- VPC: private network with subnets and internet gateway
+
+### 🧹 Cleanup
+To destroy all resources and prevent charges:
+
+```bash
+terraform destroy
+```
+### 🛠️ Built With
+Terraform — Infrastructure as Code
+AWS — Cloud infrastructure provider
+Docker — Containerization
+PostgreSQL — Database
+Flask — Backend framework
+
+### 🖇️ Contributing
+This project was developed as part of an educational program,
+but contributions and improvements are always welcome via pull requests or issues.
+
+### 📖 Wiki
+The repository includes an architecture diagram (grocerydia.png) illustrating all main components.
+You can explore the EC2 provisioning process inside the user_data.tpl file.
+
+
+### ✒️ Authors
+#### Original Application
+   👤 Alejandro Román Ibáñez — Creator of the GroceryMate App
+   🔗 GitHub: https://github.com/AlejandroRomanIbanez
+
+#### AWS Infrastructure & Terraform Deployment
+   👤 Misael Hernández
+   🔗 GitHub: https://github.com/MisaelTox
+
+### 📄 License
+This project is licensed under the MIT License.
+See the LICENSE file for details.
+
+### 🎁 Acknowledgments
+- Share this project 📢
+- Invite the author for a coffee ☕ or a beer 🍺
+- Leave a star ⭐ on GitHub to show support
+- Keep building and learning 🤓
 

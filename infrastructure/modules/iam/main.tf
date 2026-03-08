@@ -67,8 +67,8 @@ resource "aws_iam_role_policy" "ec2_inline_policy" {
 
       # Force HTTPS for S3
       {
-        Effect = "Deny"
-        Action = ["s3:*"]
+        Effect   = "Deny"
+        Action   = ["s3:*"]
         Resource = "${var.s3_bucket_arn}/*"
         Condition = {
           Bool = { "aws:SecureTransport" = false }

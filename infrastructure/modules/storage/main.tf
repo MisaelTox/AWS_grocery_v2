@@ -6,7 +6,7 @@
 # S3 Bucket
 ##########################
 resource "aws_s3_bucket" "bucket" {
-  bucket        = lower(var.bucket_name)   # Ensures valid bucket naming
+  bucket        = lower(var.bucket_name) # Ensures valid bucket naming
   force_destroy = true
 
   tags = merge(var.common_tags, { Name = lower(var.bucket_name) })

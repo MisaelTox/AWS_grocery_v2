@@ -34,7 +34,7 @@ module "network" {
 module "storage" {
   source = "./modules/storage"
 
-bucket_name = var.bucket_name
+  bucket_name = var.bucket_name
   common_tags = var.common_tags
 }
 

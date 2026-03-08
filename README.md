@@ -1,145 +1,102 @@
-# 🛒 GroceryMate — AWS Infrastructure Deployment with Terraform
+# 🛒 GroceryMate — AWS Infrastructure Deployment
+
+![CI/CD](https://github.com/MisaelTox/AWS_grocery_v2/actions/workflows/ci-cd.yml/badge.svg?branch=version2)
+![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20RDS%20%7C%20S3-orange?logo=amazon-aws)
+![Terraform](https://img.shields.io/badge/IaC-Terraform%20Modular-purple?logo=terraform)
+![Docker](https://img.shields.io/badge/Container-Docker-blue?logo=docker)
+![Python](https://img.shields.io/badge/Backend-Flask-green?logo=python)
 
 **Final project for the Masterschools Cloud Engineering Program**
 
----
+Production-grade AWS deployment of a grocery e-commerce platform — Flask on EC2, RDS PostgreSQL, S3, CloudWatch, and fully automated CI/CD via GitHub Actions.
 
-## 🚀 Overview
-
-**GroceryMate** is a modern e-commerce platform designed for online grocery shopping.
-
-This project focuses on deploying its backend infrastructure using **AWS Cloud Services** and **Terraform** as Infrastructure as Code (IaC).
-
-The goal is to simulate a **scalable, production-ready architecture** where a Flask application runs inside a Docker container on EC2, connected to an RDS PostgreSQL database, with static content stored in S3 and logs monitored via CloudWatch.
+> **Deployment Status:** Offline — destroyed via `terraform destroy` to avoid charges. All IaC configs in `/infrastructure`.
 
 ---
 
-## 🧭 Architecture Diagram
+## 🏗️ Architecture
 
 ![AWS Architecture Diagram](grocerydia.png)
 
-Core components:
-
-- **EC2 Instance (Amazon Linux 2)** — Runs the Dockerized Flask app  
-- **Amazon RDS (PostgreSQL)** — Hosts the main application database  
-- **Amazon S3** — Used for static assets and media storage  
-- **Amazon CloudWatch** — Collects and centralizes application and system logs  
-- **IAM Roles & Policies** — Provide secure cross-service permissions  
-- **VPC & Networking** — Manages subnets, routing, and secure access  
-- **Terraform (modular)** — Provisions and automates all AWS resources
-
----
-
-## ⚙️ Terraform Project Structure
-
-This folder contains the Terraform entrypoint for the infrastructure.  
-The actual AWS resources are created using **reusable modules** located in the top-level `modules/` directory.
-
-### Infrastructure folder
-
-| File             | Description                                                                 |
-|------------------|-----------------------------------------------------------------------------|
-| `provider.tf`    | Configures AWS provider and region                                          |
-| `main.tf`        | Calls the Terraform modules (network, compute, database, storage, IAM, CloudWatch) and wires inputs/outputs |
-| `variables.tf`   | Declares input variables for the infrastructure layer                       |
-| `user_data.tpl`  | EC2 bootstrap script to install dependencies, deploy Docker, and configure logging |
-
-### Modules (top-level `modules/` directory)
-
-| Module                  | Description                                                         |
-|-------------------------|---------------------------------------------------------------------|
-| `modules/network`       | VPC, subnets, route tables, Internet Gateway and security groups    |
-| `modules/compute`       | EC2 instance, security group, instance profile and user data usage  |
-| `modules/database`      | RDS PostgreSQL instance, subnet group and DB security group         |
-| `modules/storage`       | S3 bucket for static and media file storage                         |
-| `modules/iam`           | IAM roles and policies for EC2 → S3 and EC2 → CloudWatch            |
-| `modules/cloudwatch`    | CloudWatch log group configuration used by the EC2 instance         |
-
-This modular structure keeps the infrastructure **organized, reusable and easier to maintain**.
+| Component | Technology |
+|-----------|-----------|
+| Compute | AWS EC2 (Amazon Linux 2) |
+| Database | Amazon RDS PostgreSQL |
+| Storage | Amazon S3 (static assets) |
+| Logging | Amazon CloudWatch Agent |
+| Security | IAM Roles + Security Groups |
+| IaC | Terraform (modular) |
+| CI/CD | GitHub Actions |
 
 ---
 
-## 🧩 EC2 User Data Workflow
+## 🔄 CI/CD Pipeline
+```
+Push to version2
+      ↓
+✅ Terraform CI (parallel)    ✅ Docker Build Check (parallel)
+   → terraform fmt               → docker build
+   → terraform validate          → verifies image builds
+      ↓                               ↓
+      └──────────── both pass ────────┘
+                      ↓
+           ⏸️ Manual approval gate
+                      ↓
+            🚀 terraform apply → provisions all AWS resources
+```
 
-When the EC2 instance is launched, the `user_data.tpl` script automatically:
-
-1. Updates system packages and installs dependencies (`git`, `docker`, `postgresql`).  
-2. Clones this repository from GitHub.  
-3. Builds a Docker image for the Flask backend.  
-4. Runs the container on port 80, linked to the RDS database using environment variables passed from Terraform.  
-5. Writes logs to `/var/log/grocerymate.log`.  
-6. Installs and configures the **CloudWatch Agent** for log collection.
-
-This allows the application to be deployed automatically without manual SSH configuration.
-
----
-
-## ☁️ CloudWatch Integration
-
-To ensure observability and reliability, the **Amazon CloudWatch Agent** is used to stream logs from the EC2 instance.
-
-**Logs collected include:**
-
-- `/var/log/grocerymate.log`: Application logs from the Flask Docker container  
-- `/var/log/messages`: System logs and instance-level events  
-
-This provides:
-
-- Centralized log management in the AWS CloudWatch Console  
-- Easier debugging and monitoring of the instance and application  
-- A foundation for adding CloudWatch Alarms and SNS notifications in the future  
+AWS credentials stored as **GitHub Secrets** — never hardcoded.
 
 ---
 
-## 🗄️ Database Integration (Amazon RDS)
+## ⚙️ Terraform Modular Structure
+```
+infrastructure/
+├── main.tf          ← orchestrates all modules
+├── provider.tf
+├── variables.tf
+└── user_data.tpl    ← EC2 bootstrap script
 
-The EC2 container connects to the PostgreSQL RDS instance using environment variables managed by Terraform.  
-Terraform injects values such as:
-
-- Database endpoint  
-- Database name  
-- Username  
-- Password  
-- Port  
-
-This avoids hard-coding credentials and keeps configuration in a single, reproducible place.
+modules/
+├── network/         ← VPC, subnets, IGW, route tables
+├── compute/         ← EC2, instance profile, security group
+├── database/        ← RDS PostgreSQL, subnet group
+├── storage/         ← S3 bucket
+├── iam/             ← roles for EC2 → S3 and EC2 → CloudWatch
+└── cloudwatch/      ← log group configuration
+```
 
 ---
 
-## 🧱 Deployment Guide
+## 🧩 EC2 Automated Bootstrap
 
-### Prerequisites
+On launch, `user_data.tpl` automatically:
 
-- AWS CLI configured with an IAM user or SSO  
-- Terraform v1.6+ installed  
-- SSH key pair available for EC2 access (if needed)
+1. Installs Docker, Git, and PostgreSQL client
+2. Clones this repository
+3. Builds the Flask Docker image
+4. Starts the container linked to RDS via environment variables
+5. Installs and configures the CloudWatch Agent for log streaming
 
-### Steps
+Zero manual SSH configuration needed.
 
+---
+
+## 🚀 Deployment
 ```bash
+cd infrastructure
 terraform init
-terraform validate
 terraform plan
 terraform apply
 ```
 
-Once the apply completes, Terraform outputs the EC2 public IP and the RDS endpoint.
-The Flask app starts automatically inside the Docker container on the EC2 instance.
+Terraform outputs the EC2 public IP and RDS endpoint on completion.
 
 ---
 
-## 📊 Monitoring & Logs
+## 📊 Monitoring
 
-You can verify logs directly in the AWS CloudWatch Console, under the log group created by the CloudWatch module.
-
-On the EC2 instance, you can also inspect logs manually:
-
-```
-Log groups → /aws/flask/grocerymate
-```
-
-Or view them inside the EC2 instance:
-
+Logs stream automatically to CloudWatch under `/aws/flask/grocerymate`. View on EC2 directly:
 ```bash
 sudo tail -f /var/log/grocerymate.log
 ```
@@ -147,36 +104,22 @@ sudo tail -f /var/log/grocerymate.log
 ---
 
 ## 🧹 Cleanup
-
-To destroy all resources and avoid ongoing AWS charges:
-
 ```bash
 terraform destroy
 ```
 
-This command removes the EC2 instance, RDS database, S3 bucket, networking components and all related infrastructure created by this configuration.
 ---
 
-## 🌱 Future Improvements
+## 📝 Lessons Learned
 
-- Add an Application Load Balancer (ALB) for scalability.  
-- Enable Auto Scaling Groups for high availability.  
-- Configure CloudWatch Alarms and SNS notifications.  
-- Add a CI/CD pipeline using GitHub Actions.  
+- **CI/CD with GitHub Actions** — parallel Terraform validation + Docker build check with manual approval gate
+- **Modular Terraform** — organized 6 reusable modules (network, compute, database, storage, IAM, CloudWatch) keeping infrastructure maintainable and scalable
+- **RDS integration** — injected database credentials via Terraform environment variables, avoiding hardcoded secrets
+- **CloudWatch observability** — configured CloudWatch Agent via user_data to stream application and system logs automatically on EC2 launch
 
 ---
 
 ## 🧾 Credits
 
-**Original Application:**  
-👤 *Alejandro Román Ibáñez* — Creator of the GroceryMate App  
-🔗 [GitHub: AlejandroRomanIbanez](https://github.com/AlejandroRomanIbanez)
-
-**AWS Infrastructure & Terraform Deployment:**  
-👤 *Misael Hernández*  
-🔗 [GitHub: MisaelTox](https://github.com/MisaelTox)
-
----
-
-*All resources provisioned with Terraform.*
-
+**Original Application:** [Alejandro Román Ibáñez](https://github.com/AlejandroRomanIbanez)
+**AWS Infrastructure & CI/CD:** [MisaelTox](https://github.com/MisaelTox)

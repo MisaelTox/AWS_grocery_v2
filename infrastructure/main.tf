@@ -4,7 +4,7 @@
 # Linux Environment (Amazon Linux 2)
 ##########################################
 
-# 1️⃣ Data block - Get AWS account info
+# Data block - Get AWS account info
 data "aws_caller_identity" "current" {}
 
 
@@ -13,7 +13,7 @@ data "aws_caller_identity" "current" {}
 #  Modules
 ##########################################
 
-# 1️⃣ Network Module
+# Network Module
 module "network" {
   source = "./modules/network"
 
@@ -30,7 +30,7 @@ module "network" {
   allowed_http_cidrs = var.allowed_http_cidrs
 }
 
-# 2️⃣ Storage Module (S3)
+# Storage Module (S3)
 module "storage" {
   source = "./modules/storage"
 
@@ -38,7 +38,7 @@ module "storage" {
   common_tags = var.common_tags
 }
 
-# 3️⃣ IAM Module (depends on S3 bucket)
+# IAM Module (depends on S3 bucket)
 module "iam" {
   source       = "./modules/iam"
   project_name = var.project_name
@@ -48,7 +48,7 @@ module "iam" {
 }
 
 
-# 4️⃣ CloudWatch Module
+# CloudWatch Module
 module "cloudwatch" {
   source = "./modules/cloudwatch"
 
@@ -58,7 +58,7 @@ module "cloudwatch" {
   log_retention_days = 14
 }
 
-# 5️⃣ Database Module
+# Database Module
 module "database" {
   source = "./modules/database"
 
@@ -73,7 +73,7 @@ module "database" {
   db_password = var.db_password
 }
 
-# 6️⃣ Compute Module (EC2)
+# Compute Module (EC2)
 module "compute" {
   source = "./modules/compute"
 

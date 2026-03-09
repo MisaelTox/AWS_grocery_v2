@@ -1,11 +1,12 @@
 variable "project_name" {
-  type = string
+  description = "Project name used for resource naming and tagging"
+  type        = string
 }
 
 variable "common_tags" {
-  type = map(string)
+  description = "Common tags to apply to all resources"
+  type        = map(string)
 }
-
 variable "log_group_name" {
   type        = string
   description = "Name of the CloudWatch Log Group"

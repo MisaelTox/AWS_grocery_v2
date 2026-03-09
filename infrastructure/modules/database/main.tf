@@ -8,7 +8,7 @@
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name = "${lower(var.project_name)}-rds-subnet-group"
 
-  # Las subnets vienen desde root como variable
+ # Subnets are passed from the root module as a variable
   subnet_ids = var.subnet_ids
 
   tags = merge(var.common_tags, { Name = "${var.project_name}-rds-subnet-group" })
@@ -29,10 +29,10 @@ resource "aws_db_instance" "postgres" {
   username = var.db_username
   password = var.db_password
 
-  # El subnet group viene del recurso anterior
+  # Subnet group is defined above in this module
   db_subnet_group_name = aws_db_subnet_group.rds_subnet_group.name
 
-  # SG para permitir acceso solo desde EC2
+  # Security group allows access from EC2 only
   vpc_security_group_ids = var.vpc_security_group_ids
 
   skip_final_snapshot = true

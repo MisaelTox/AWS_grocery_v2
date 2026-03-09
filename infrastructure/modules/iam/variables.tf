@@ -1,11 +1,14 @@
 variable "project_name" {
-  type = string
+  description = "Project name used for resource naming and tagging"
+  type        = string
 }
 
 variable "common_tags" {
-  type = map(string)
+  description = "Common tags to apply to all resources"
+  type        = map(string)
 }
 
 variable "s3_bucket_arn" {
-  type = string
+  description = "ARN of the S3 bucket to grant EC2 access to"
+  type        = string
 }

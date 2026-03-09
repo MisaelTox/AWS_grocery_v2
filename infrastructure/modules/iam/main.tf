@@ -55,6 +55,9 @@ resource "aws_iam_role_policy" "ec2_inline_policy" {
       },
 
       # CloudWatch logs
+      # NOTE: Resource is "*" for simplicity. In production, scope this
+# to a specific log group ARN for least privilege.
+      
       {
         Effect = "Allow"
         Action = [

@@ -28,6 +28,8 @@ resource "aws_instance" "app_server" {
   associate_public_ip_address = true
 
   # Bootstrap with user_data template
+    # NOTE: For production, db_password should be retrieved from
+  # AWS Secrets Manager at runtime instead of passed via user_data
   user_data = templatefile("${path.module}/../../user_data.tpl", {
     db_host     = var.db_host
     db_name     = var.db_name

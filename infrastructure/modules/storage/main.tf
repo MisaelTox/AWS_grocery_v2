@@ -7,9 +7,21 @@
 ##########################
 resource "aws_s3_bucket" "bucket" {
   bucket        = lower(var.bucket_name) # Ensures valid bucket naming
+  # WARNING: force_destroy = true will delete all bucket contents on terraform destroy.
+  # Set to false in production to prevent accidental data loss.
   force_destroy = true
 
   tags = merge(var.common_tags, { Name = lower(var.bucket_name) })
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "encryption" {
+  bucket = aws_s3_bucket.bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
 }
 
 ##########################

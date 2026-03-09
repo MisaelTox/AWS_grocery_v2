@@ -13,10 +13,6 @@ resource "aws_cloudwatch_log_group" "app_log_group" {
     Name = var.log_group_name
   })
 
-  lifecycle {
-    prevent_destroy = false
-    ignore_changes  = [name]
-  }
 }
 
 ##########################

@@ -8,7 +8,7 @@
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name = "${lower(var.project_name)}-rds-subnet-group"
 
- # Subnets are passed from the root module as a variable
+  # Subnets are passed from the root module as a variable
   subnet_ids = var.subnet_ids
 
   tags = merge(var.common_tags, { Name = "${var.project_name}-rds-subnet-group" })

@@ -6,7 +6,7 @@
 # S3 Bucket
 ##########################
 resource "aws_s3_bucket" "bucket" {
-  bucket        = lower(var.bucket_name) # Ensures valid bucket naming
+  bucket = lower(var.bucket_name) # Ensures valid bucket naming
   # WARNING: force_destroy = true will delete all bucket contents on terraform destroy.
   # Set to false in production to prevent accidental data loss.
   force_destroy = true
